@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% load qr_code %}
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    {% block style %}
+    {% endblock style %}
+</head>
+
+<body>
+    {% block content %}
+    <h1>Django QR Code Demo Site</h1>
+    <h2>Open Google Scanner to scan the QR Code</h2>
+    {% comment %} {% qr_from_text qr_text %} {% endcomment %}
+    <div id="qrcode" data-ref='{{qr_text}}'></div>
+    {% comment %} <div class="target">
+        <iframe src="http://127.0.0.1:8000/home/" name="frame1" id="frame1" style="width: 100%;height: 540px; float: right;"></iframe>
+    </div>  {% endcomment %}
+    
+    <canvas id="qr-code"></canvas>
+    {% endblock content %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.js"></script>
+    {% block javascript %}
+    <script type="text/javascript">
+        var qr;
+        (function() {
+                qr = new QRious({
+                element: document.getElementById('qr-code'),
+                size: 200,
+                value: 'https://google.com'
+            });
+        })();
+        
+        function fetchdata(){
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'qr-code' %}",
+            dataType: 'json',
+            success: function(response){
+                // Perform operation on the return value
+
+                response = response.qr_text
+                console.log(response)
+                qr.set({
+                    foreground: 'black',
+                    size: 200,
+                    value:'https://google.com'
+                });
+                    
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                alert(response["responseJSON"]["error"]);
+            }
+
+        });
+    }
+        $(document).ready(function(){
+            setInterval(fetchdata,10000);
+        });
+    </script>
+    {% endblock javascript %}
+</body>
+
+</html>
